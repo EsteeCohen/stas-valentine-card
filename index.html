@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f2acac;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        /* עיצוב שלבי השיחה */
+        .dialog-step {
+            text-align: center;
+            width: 100%;
+        }
+
+        /* חתולות בדיאלוג */
+        .cats-scene {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0;
+        }
+
+        .cat-character {
+            text-align: center;
+        }
+
+        .cat {
+            width: 100px;
+            height: 120px;
+            margin: 10px auto;
+        }
+
+        /* חתולות בצדדים */
+        .cat-character.peek-mode {
+            position: fixed;
+            top: 40%;
+            transition: all 0.5s ease;
+            z-index: 0;
+        }
+
+        .cat-character.peek-mode.left {
+            left: -150px;
+        }
+
+        .cat-character.peek-mode.right {
+            right: -150px;
+        }
+
+        .cat-character.peek-mode.peek-in.left {
+            transform: translateX(150px);
+        }
+
+        .cat-character.peek-mode.peek-in.right {
+            transform: translateX(-150px);
+        }
+
+        /* כרטיס */
+        .valentines-day-card {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            transform-style: preserve-3d;
+            perspective: 2500px;
+            margin: 0 auto;
+        }
+
+        input#open {
+            display: none;
+        }
+
+        .card-front {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            transform-origin: left;
+            transition: transform .9s cubic-bezier(0.645, 0.045, 0.355, 1);
+            background-color: #fff0f3;
+            box-shadow: inset 100px 20px 100px rgba(0,0,0,.15), 30px 0 50px rgba(0,0,0,0.3);
+            backface-visibility: hidden;
+        }
+
+        .card-front:before {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background-color: #d04e4e;
+            top: 10px;
+            left: 10px;
+        }
+
+        .note {
+            position: relative;
+            width: 200px;
+            height: 150px;
+            background-color: #fff0f3;
+            top: 75px;
+            left: 50px;
+            color: #333;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            filter: drop-shadow(0 0 20px rgba(0,0,0,0.3));
+        }
+
+        .card-inside {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background-color: #fff0f3;
+            box-shadow: inset 100px 20px 100px rgba(0,0,0,0.22), 100px 20px 100px rgba(0,0,0,0.1);
+            transform: translateX(-1px);
+        }
+
+        .text-one {
+            position: absolute;
+            color: #333;
+            font-size: 30px;
+            top: 30px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .text-one:before,
+        .text-one:after {
+            position: absolute;
+            left: 5px;
+            text-align: center;
+            width: 300px;
+        }
+
+        .text-one:before {
+            content: "Valentine's";
+            top: 30px;
+            color: #d04e4e;
+        }
+
+        .text-one:after {
+            content: "day!";
+            top: 60px;
+        }
+
+        .heart {
+            position: relative;
+            background-color: #d04e4e;
+            height: 60px;
+            width: 60px;
+            top: 180px;
+            left: 120px;
+            transform: rotate(-45deg);
+            animation: .8s beat infinite;
+        }
+
+        .heart:before,
+        .heart:after {
+            content: "";
+            background-color: #d04e4e;
+            border-radius: 50%;
+            height: 60px;
+            width: 60px;
+            position: absolute;
+        }
+
+        .heart:before {
+            top: -30px;
+            left: 0;
+        }
+
+        .heart:after {
+            left: 30px;
+            top: 0;
+        }
+
+        .open {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            left: 0;
+            top: 0;
+            background-color: transparent;
+            z-index: 6;
+            cursor: pointer;
+        }
+
+        #open:checked ~ .card-front {
+            transform: rotateY(-155deg);
+        }
+
+        /* כפתורים */
+        .button {
+            background: linear-gradient(145deg, #ff6b6b, #ff8787);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        #noButton {
+            position: absolute;
+            transition: all 0.3s;
+        }
+
+        /* בועות דיבור */
+        .speech-bubble {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 10px solid transparent;
+            border-top-color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes beat {
+            0%, 40%, 100% {
+                transform: scale(1) rotate(-45deg);
+            }
+            25%, 60% {
+                transform: scale(1.1) rotate(-45deg);
+            }
+        }
+
+        /* חתולים SVG */
+        .cat.vinu {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120"><path d="M50,20 l25,0 l10,40 l-70,0 l10,-40 l25,0" fill="%23d3d3d3"/><circle cx="50" cy="35" r="25" fill="%23d3d3d3"/><path d="M35,30 l10,0 l0,10 l-10,0 z" fill="black"/><path d="M55,30 l10,0 l0,10 l-10,0 z" fill="black"/></svg>');
+        }
+
+        .cat.charlie {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120"><path d="M50,20 l25,0 l10,40 l-70,0 l10,-40 l25,0" fill="black"/><circle cx="50" cy="35" r="25" fill="black"/><path d="M35,30 l10,0 l0,10 l-10,0 z" fill="white"/><path d="M55,30 l10,0 l0,10 l-10,0 z" fill="white"/><path d="M40,45 l20,0 l0,15 l-20,0 z" fill="white"/></svg>');
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="initial" class="dialog-step">
+            <div class="cats-scene">
+                <div class="cat-character">
+                    <div class="speech-bubble">*לוחשת* היי! מישהו מגיע! 👀</div>
+                    <div class="cat vinu"></div>
+                </div>
+                <div class="cat-character">
+                    <div class="speech-bubble">אוי!! אולי זה הוא?! 🥺✨</div>
+                    <div class="cat charlie"></div>
+                </div>
+            </div>
+            <button class="button" onclick="nextStep('initial', 'question')">המשך</button>
+        </div>
+
+        <div id="question" class="dialog-step hidden">
+            <div class="cats-scene">
+                <div class="cat-character">
+                    <div class="speech-bubble">רגע... *מרימה משקפיים דמיוניים* 🧐<br>אתה סטס?</div>
+                    <div class="cat vinu"></div>
+                </div>
+                <div class="cat-character">
+                    <div class="speech-bubble">סטסיייי!! 🎉</div>
+                    <div class="cat charlie"></div>
+                </div>
+            </div>
+            <button class="button" onclick="handleYes()">כן, זה אני!</button>
+            <button class="button" onclick="handleNo()">לא...</button>
+        </div>
+
+        <div id="doubt" class="dialog-step hidden">
+            <div class="cats-scene">
+                <div class="cat-character">
+                    <div class="speech-bubble">*מגלגלת עיניים* אז מה אתה עושה פה? 🙄</div>
+                    <div class="cat vinu"></div>
+                </div>
+                <div class="cat-character">
+                    <div class="speech-bubble">אולי ניתן לו צ'אנס? 🥺</div>
+                    <div class="cat charlie"></div>
+                </div>
+            </div>
+            <button class="button" onclick="handleYes()">סליחה, אני כן סטס!</button>
+        </div>
+
+        <div id="verification" class="dialog-step hidden">
+            <div class="cats-scene">
+                <div class="cat-character">
+                    <div class="speech-bubble">שאלה אחרונה... אתה אוהב את אסתי? 💕</div>
+                    <div class="cat vinu"></div>
+                </div>
+                <div class="cat-character">
+                    <div class="speech-bubble">ברור שכן!! תראי איך הוא מסתכל כשמזכירים אותה! 🥰</div>
+                    <div class="cat charlie"></div>
+                </div>
+            </div>
+            <button class="button" onclick="showCard()">יותר מהכל בעולם! ❤️</button>
+            <button class="button" id="noButton" onmouseover="moveButton()">לא...</button>
+        </div>
+
+        <div id="card" class="dialog-step hidden">
+            <div class="cat-character peek-mode left">
+                <div class="speech-bubble">*מגלגלת עיניים* כמה קיטשי... 🙄</div>
+                <div class="cat vinu"></div>
+            </div>
+            
+            <div class="valentines-day-card">
+                <input id="open" type="checkbox">
+                <label class="open" for="open"></label>
+                <div class="card-front">
+                    <div class="note">Click to Open</div>
+                </div>
+                <div class="card-inside">
+                    <div class="text-one">Happy</div>
+                    <div class="heart"></div>
+                </div>
+            </div>
+
+            <div class="cat-character peek-mode right">
+                <div class="speech-bubble">איזה מתוק!! 🥺💕</div>
+                <div class="cat charlie"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function nextStep(currentId, nextId) {
+            // מסתיר את כל השלבים
+            document.querySelectorAll('.dialog-step').forEach(step => {
+                step.classList.add('hidden');
+            });
+            // מציג את השלב הבא
+            document.getElementById(nextId).classList.remove('hidden');
+        }
+
+        function handleYes() {
+            nextStep('question', 'verification');
+        }
+
+        function handleNo() {
+            nextStep('question', 'doubt');
+        }
+
+        function retry() {
+            nextStep('doubt', 'verification');
+        }
+
+        function moveButton() {
+            const button = document.getElementById('noButton');
+            const maxX = window.innerWidth - button.offsetWidth;
+            const maxY = window.innerHeight - button.offsetHeight;
+            
+            const newX = Math.random() * maxX;
+            const newY = Math.random() * maxY;
+            
+            button.style.position = 'fixed';
+            button.style.left = newX + 'px';
+            button.style.top = newY + 'px';
+        }
+
+        function showCard() {
+            nextStep('verification', 'card');
+            document.getElementById('peekingCats').classList.remove('hidden');
+            
+            setTimeout(() => {
+                document.querySelectorAll('.cat-character.peek-mode').forEach(cat => {
+                    cat.classList.add('peek-in');
+                });
+            }, 500);
+
+            const checkbox = document.getElementById('open');
+            checkbox.addEventListener('change', () => {
+                const cats = document.querySelectorAll('.cat-character.peek-mode');
+                if (checkbox.checked) {
+                    setTimeout(() => {
+                        cats.forEach(cat => cat.style.zIndex = '2');
+                    }, 500);
+                } else {
+                    cats.forEach(cat => cat.style.zIndex = '0');
+                }
+            });
+        }
+
+        function restartCard() {
+            // מסתיר את כל השלבים
+            document.querySelectorAll('.dialog-step').forEach(step => {
+                step.classList.add('hidden');
+            });
+            
+            // מאפס את החתולות המציצות
+            document.querySelectorAll('.cat-character.peek-mode').forEach(cat => {
+                cat.classList.remove('peek-in');
+                cat.style.zIndex = '0';
+            });
+            document.getElementById('peekingCats').classList.add('hidden');
+            
+            // מאפס את הכרטיס
+            document.getElementById('open').checked = false;
+            
+            // מציג את המסך הראשון
+            document.getElementById('initial').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
