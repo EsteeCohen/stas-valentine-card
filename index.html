@@ -55,19 +55,15 @@
             transition: all 0.5s ease;
             z-index: 0;
         }
-
         .cat-character.peek-mode.left {
             left: -150px;
         }
-
         .cat-character.peek-mode.right {
             right: -150px;
         }
-
         .cat-character.peek-mode.peek-in.left {
             transform: translateX(150px);
         }
-
         .cat-character.peek-mode.peek-in.right {
             transform: translateX(-150px);
         }
@@ -81,7 +77,6 @@
             position: relative;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
         .speech-bubble:after {
             content: '';
             position: absolute;
@@ -105,7 +100,6 @@
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
         }
-
         .button:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
@@ -124,7 +118,6 @@
         .cat.vinu {
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120"><path d="M50,20 l25,0 l10,40 l-70,0 l10,-40 l25,0" fill="%23d3d3d3"/><circle cx="50" cy="35" r="25" fill="%23d3d3d3"/><path d="M35,30 l10,0 l0,10 l-10,0 z" fill="black"/><path d="M55,30 l10,0 l0,10 l-10,0 z" fill="black"/></svg>');
         }
-
         .cat.charlie {
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120"><path d="M50,20 l25,0 l10,40 l-70,0 l10,-40 l25,0" fill="black"/><circle cx="50" cy="35" r="25" fill="black"/><path d="M35,30 l10,0 l0,10 l-10,0 z" fill="white"/><path d="M55,30 l10,0 l0,10 l-10,0 z" fill="white"/><path d="M40,45 l20,0 l0,15 l-20,0 z" fill="white"/></svg>');
         }
@@ -145,8 +138,15 @@
             width: 100%;
             height: 100%;
             perspective: 1500px;
+            position: relative;
         }
+
+        /* עמוד 1 – החזית */
         .page__1 {
+            /* מצב התחלתי: "ישר" (0deg). בהובר נהפוך ל-180deg כדי לחשוף את החלק הפנימי */
+            transform: rotateY(0deg);
+            transform-origin: 100% 50%;
+            
             background: linear-gradient(135deg, #ff8080, #ff4d4d);
             color: white;
             width: 100%;
@@ -156,8 +156,7 @@
             top: 0;
             right: 0;
             opacity: 1;
-            transition: all 1s 0.3s;
-            transform-origin: 100% 50%;
+            transition: transform 1s 0.3s;
             z-index: 2;
             display: flex;
             flex-direction: column;
@@ -165,26 +164,39 @@
             align-items: center;
             border-radius: 10px;
         }
-        .page__1::after {
-            content: "עמוד 2";
-            color: #333;
+
+        /* עמוד 1 AFTER – מבפנים מצד ימין */
+        .page__1_after {
+            /* מצב התחלתי: מסובב 180 מעלות, כדי שלא ייראה מלפנים */
+            transform: rotateY(-180deg);
+            transform-origin: right center;
+
             position: absolute;
-            padding-top: 1.5rem;
             top: 0;
             right: 0;
             background-color: white;
             width: 100%;
             height: 100%;
+            box-sizing: border-box;
             z-index: 1;
-            opacity: 0;
-            transform: rotateY(-180deg);
-            transition: all 0.3s 0.5s;
+            opacity: 1; /* אפשר להישאר על 1, כי הסיבוב הוא מה שהופך אותה לבלתי נראית */
+            transition: transform 1s 0.3s;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            justify-content: flex-start;
             border-radius: 10px;
+
+            /* עיצוב טקסט */
+            text-align: right;
+            direction: rtl;
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: normal; 
+            color: #333;
         }
+
+        /* עמוד 2 – הצד השמאלי */
         .page__2 {
             background-color: white;
             width: 100%;
@@ -199,13 +211,16 @@
             align-items: center;
             border-radius: 10px;
         }
+
+        /* אפקט הפתיחה בהובר */
         .page:hover .page__1 {
             transform: rotateY(180deg);
             box-shadow: -1.5rem 2rem 3rem rgba(0, 0, 0, 0.25);
         }
-        .page:hover .page__1::after {
-            opacity: 1;
+        .page:hover .page__1_after {
+            transform: rotateY(0deg); /* במקום להישאר ב(-180), הופכת לפנים הצופה */
         }
+
         .title {
             font-size: 28px;
             margin-bottom: 20px;
@@ -233,10 +248,17 @@
         .page:hover .page-content {
             opacity: 1;
         }
+
+        /* --- הוספנו רק את זה! היפוך הטקסט בפנים ל"כתב מראה" --- */
+        .page__1_after p {
+            transform: scaleX(-1);
+            display: inline-block; 
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- שלב פתיחה -->
         <div id="initial" class="dialog-step">
             <div class="cats-scene">
                 <div class="cat-character">
@@ -251,6 +273,7 @@
             <button class="button" onclick="nextStep('initial', 'question')">המשך</button>
         </div>
 
+        <!-- שלב זיהוי -->
         <div id="question" class="dialog-step hidden">
             <div class="cats-scene">
                 <div class="cat-character">
@@ -266,6 +289,7 @@
             <button class="button" onclick="handleNo()">לא...</button>
         </div>
 
+        <!-- שלב ספק -->
         <div id="doubt" class="dialog-step hidden">
             <div class="cats-scene">
                 <div class="cat-character">
@@ -280,6 +304,7 @@
             <button class="button" onclick="handleYes()">סליחה, אני כן סטס!</button>
         </div>
 
+        <!-- שלב אימות -->
         <div id="verification" class="dialog-step hidden">
             <div class="cats-scene">
                 <div class="cat-character">
@@ -295,6 +320,7 @@
             <button class="button" id="noButton" onmouseover="moveButton()">לא...</button>
         </div>
 
+        <!-- שלב כרטיס הברכה -->
         <div id="card" class="dialog-step hidden">
             <div id="peekingCats">
                 <div class="cat-character peek-mode left">
@@ -310,24 +336,41 @@
             
             <div class="book">
                 <div class="page">
+                    <!-- החזית של הכרטיס -->
                     <div class="page__1">
                         <div class="title">יום אהבה שמח!</div>
                         <div class="heart">❤️</div>
                         <div class="hint">העבר את העכבר מעל הכרטיס</div>
+
+                        <!-- החלק הפנימי של עמוד 1 (צד ימין) -->
+                        <div class="page__1_after">
+                            <p><strong>לסטסי הלב שלי,</strong></p>
+                            <p>
+                                אם הייתי צריכה לבחור מילה אחת שמתארת אותך, הייתי אומרת בית.
+                                כי זה בדיוק מה שאתה בשבילי – המקום הבטוח, החם, והיחיד שבו אני תמיד מרגישה שייכת.
+                            </p>
+                            <p>
+                                בכל יום מחדש, אתה מזכיר לי למה אני כל כך אוהבת אותך.
+                                זה לא במתנות או במחוות גדולות, אלא ברגעים הקטנים –
+                                כשהשקעת זמן רק בשבילי, בלי שום דבר חיצוני, רק אתה והלב הענק שלך.
+                                כשהחיבוק שלך עוטף אותי וזה מרגיש כמו הדבר הכי נעים בעולם.
+                                כשהצלחת להצחיק אותי בדיוק כשלא היה לי מצב רוח.
+                            </p>
+                        </div>
                     </div>
+
+                    <!-- העמוד השמאלי (PAGE 2) -->
                     <div class="page__2">
                         <div class="page-content" style="text-align: right; direction: rtl; padding: 20px; font-size: 14px; line-height: 1.6;">
-                            <div class="title">לסטס שלי ❤️</div>
-                            <p>זהו, זו רק הברכה הזמנית שלי. בעתיד תקבל ברכה מפורטת ומרגשת הרבה יותר!</p>
+                            <p>כן, לפעמים יש לנו באגים קטנים (טוב, ריבים פה ושם), אבל איכשהו, תמיד מוצאים את הדרך לתקן הכל – כמו שתמיד היית שם כדי לנסות למצוא פתרונות לכל דבר שמטריד אותי, גם כשאני בכלל רק רציתי לפרוק.</p>
                             
-                            <p>אבל עד אז, תדע שאני אוהבת אותך בכל נשימה, בכל רגע, בכל פעימת לב. אתה האדם המיוחד והנפלא ביותר בעולם שלי.</p>
+                            <p>אנחנו עברנו המון יחד, וכל שנה איתך אני רק מבינה כמה זכיתי. וינו, צ'ארלי ושישי אולי לא יודעות להגיד את זה, אבל אם הן היו יכולות לדבר - הן בטוח היו אומרות שאין עלייך בעולם.</p>
                             
-                            <p>בינתיים, זו רק הודעה זמנית שנועדה למלא מקום. אל תיקח את זה ברצינות יתרה. בהמשך אכתוב לך ברכה שתגרום לך לבכות מרוב אושר (או לפחות לחייך חיוך ענק).</p>
+                            <p>אז ללב שלי, תודה על מי שאתה, על כל מה שאתה נותן לי, ועל זה שאתה הבית שתמיד רציתי.</p>
                             
-                            <p>אז למה אני ממלאת כאן הרבה טקסט? פשוט כדי שיהיה לי מקום למלא. בלה בלה בלה. עוד כמה מילים חסרות משמעות. עוד טקסט שנועד רק למלא מקום. מה שחשוב הוא שאני אוהבת אותך!</p>
+                            <p>אני אוהבת אותך עד אינסוף.</p>
                             
-                            <p>אוהבת אותך לנצח ועוד יום אחד,<br>
-                            אסתי ❤️</p>
+                            <p><strong>שלך תמיד, אסתי שלך.</strong></p>
                         </div>
                     </div>
                 </div>
@@ -337,11 +380,9 @@
 
     <script>
         function nextStep(currentId, nextId) {
-            // מסתיר את כל השלבים
             document.querySelectorAll('.dialog-step').forEach(step => {
                 step.classList.add('hidden');
             });
-            // מציג את השלב הבא
             document.getElementById(nextId).classList.remove('hidden');
         }
 
@@ -357,10 +398,8 @@
             const button = document.getElementById('noButton');
             const maxX = window.innerWidth - button.offsetWidth;
             const maxY = window.innerHeight - button.offsetHeight;
-            
             const newX = Math.random() * maxX;
             const newY = Math.random() * maxY;
-            
             button.style.position = 'fixed';
             button.style.left = newX + 'px';
             button.style.top = newY + 'px';
@@ -368,7 +407,6 @@
 
         function showCard() {
             nextStep('verification', 'card');
-            
             setTimeout(() => {
                 document.querySelectorAll('.cat-character.peek-mode').forEach(cat => {
                     cat.classList.add('peek-in');
